@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orar Unificat - FSEGA & FSE Diplomație în Afaceri</title>
+  <style>
+    :root {
+      --bg-color: #121214;
+      --card-bg: #1e1e24;
+      --card-border: #2d2d38;
+      --text-main: #f0f0f5;
+      --text-sub: #a0a0b0;
+      --fsega-color: #007aff; /* Albastru Apple stil FSEGA */
+      --fsega-bg: rgba(0, 122, 255, 0.12);
+      --fse-color: #34c759;  /* Verde Apple stil FSE */
+      --fse-bg: rgba(52, 199, 89, 0.12);
+      --badge-s1: #ff9500;   /* Portocaliu Săptămână Impară */
+      --badge-s2: #af52de;   /* Mov Săptămână Pară */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 25px auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #007aff, #34c759);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    /* Filters Bar */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background: #2c2c35;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover, .btn.active {
+      background: var(--text-main);
+      color: var(--bg-color);
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Timetable Grid */
+    .timetable-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .day-column {
+      background: #18181c;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .day-header {
+      background: #22222a;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+    }
+
+    .events-container {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    /* Event Card - Apple Calendar Style */
+    .event-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 10px 12px;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--text-sub); /* Default accent bar */
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .event-card.fsega {
+      border-left-color: var(--fsega-color);
+      background: var(--fsega-bg);
+    }
+
+    .event-card.fse {
+      border-left-color: var(--fse-color);
+      background: var(--fse-bg);
+    }
+
+    .event-time {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      line-height: 1.25;
+    }
+
+    .event-detail {
+      font-size: 0.78rem;
+      color: #c0c0d0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .badge-s1 { background: var(--badge-s1); }
+    .badge-s2 { background: var(--badge-s2); }
+    .badge-all { background: #555566; }
+
+    .tag-type {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    a.teams-link {
+      color: #64d2ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a.teams-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Overlap warning tag */
+    .overlap-tag {
+      background: rgba(255, 69, 58, 0.2);
+      color: #ff453a;
+      font-size: 0.68rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .empty-day {
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      padding: 30px 10px;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .timetable-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Orar Unificat Anul 1</h1>
+    <p class="subtitle">FSEGA (Finance & Banking) &bull; FSE (Diplomație în Afaceri)</p>
+    
+    <div class="controls">
+      <button class="btn active" onclick="filterEvents('all')">Toate cursurile</button>
+      <button class="btn" onclick="filterEvents('s1')">Doar Săptămâna Impară (S1 / SI)</button>
+      <button class="btn" onclick="filterEvents('s2')">Doar Săptămâna Pară (S2 / SP)</button>
+      <button class="btn" onclick="filterEvents('fsega')">Doar FSEGA</button>
+      <button class="btn" onclick="filterEvents('fse')">Doar FSE Diplomație</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: var(--fsega-color);"></div>
+        <span>FSEGA Finance & Banking</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: var(--fse-color);"></div>
+        <span>FSE Diplomație în Afaceri</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-s1">S1 / SI</span>
+        <span>Săptămână Impară</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-s2">S2 / SP</span>
+        <span>Săptămână Pară</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="timetable-grid">
+
+    <!-- LUNI -->
+    <div class="day-column">
+      <div class="day-header">LUNI</div>
+      <div class="events-container">
+        
+        <!-- FSE: Engleză -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>08:00 - 10:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Limba engleză (DA1 + MG1)</div>
+          <div class="event-detail">📍 Sala Adenauer</div>
+          <div class="event-detail">👤 Asist. Călina Părău-Olar</div>
+        </div>
+
+        <!-- FSEGA: Public Finance Seminar -->
+        <div class="event-card fsega" data-week="s2" data-faculty="fsega">
+          <div class="event-time">
+            <span>10:15 - 11:45</span>
+            <span class="badge badge-s2">Pară (SP)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Public Finance</div>
+          <div class="event-detail">📍 Sala 217</div>
+          <div class="event-detail">👤 Mara E.</div>
+        </div>
+
+        <!-- FSE: Informatică Aplicată Curs -->
+        <div class="event-card fse" data-week="s1" data-faculty="fse">
+          <div class="event-time">
+            <span>12:00 - 14:00</span>
+            <span class="badge badge-s1">Impară (S1)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> Informatică aplicată</div>
+          <div class="event-detail">📍 Sala Jean Monnet</div>
+          <div class="event-detail">👤 Conf. Alina Andreica</div>
+          <div class="event-detail">💻 Teams: 7szvrgu</div>
+        </div>
+
+        <!-- FSEGA: Public Finance Curs -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>13:45 - 15:15</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> PUBLIC FINANCE</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Mara E.</div>
+        </div>
+
+        <!-- FSEGA: Service Design Seminar -->
+        <div class="event-card fsega" data-week="s1" data-faculty="fsega">
+          <div class="event-time">
+            <span>15:30 - 17:00</span>
+            <span class="badge badge-s1">Impară (SI)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Service Design & Dev.</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Souca M.</div>
+        </div>
+
+        <!-- FSE: Informatică Aplicată Seminar -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>16:00 - 18:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Informatică aplicată</div>
+          <div class="event-detail">📍 Sala Info 1</div>
+          <div class="event-detail">👤 Conf. Alina Andreica</div>
+          <div class="event-detail">💻 Teams: 7szvrgu</div>
+        </div>
+
+        <!-- FSEGA: History and Economic Doctrines Seminar -->
+        <div class="event-card fsega" data-week="s1" data-faculty="fsega">
+          <div class="event-time">
+            <span>17:15 - 18:45</span>
+            <span class="badge badge-s1">Impară (SI)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> History & Econ. Doctrines</div>
+          <div class="event-detail">📍 Sala 218</div>
+          <div class="event-detail">👤 Chiper R.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MARȚI -->
+    <div class="day-column">
+      <div class="day-header">MARȚI</div>
+      <div class="events-container">
+        
+        <!-- FSE: Intro Relatii Internationale Curs (Suprapunere) -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>10:00 - 12:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> Introducere în Rel. Internaționale</div>
+          <div class="event-detail">📍 Sala Jean Monnet</div>
+          <div class="event-detail">👤 Prof. Laura Herța</div>
+          <div class="event-detail">🔗 Link Zoom disponibil</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSEGA (10:15)</div>
+        </div>
+
+        <!-- FSEGA: Maths Curs (Suprapunere) -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>10:15 - 11:45</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> MATHEMATICS APPLIED TO ECON.</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Curt P.</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSE (10:00)</div>
+        </div>
+
+        <!-- FSE: Istoria Integrării Europene Curs -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>12:00 - 14:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> Istoria Integrării Europene</div>
+          <div class="event-detail">📍 Sala Jean Monnet</div>
+          <div class="event-detail">👤 Prof. Adrian-Gabriel Corpădean</div>
+          <div class="event-detail">🔗 Link Zoom disponibil</div>
+        </div>
+
+        <!-- FSEGA: Microeconomics Seminar -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>13:45 - 15:15</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Microeconomics</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Bucur L.</div>
+        </div>
+
+        <!-- FSEGA: History and Economic Doctrines Curs -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>15:30 - 17:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> HISTORY & ECON. DOCTRINES</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Jula O.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MIERCURI -->
+    <div class="day-column">
+      <div class="day-header">MIERCURI</div>
+      <div class="events-container">
+        
+        <!-- FSE: Sport (Suprapunere) -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>08:00 - 10:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SPORT</span> Educație Fizică</div>
+          <div class="event-detail">📍 Sala Sport Parc Babeș</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSEGA (08:30)</div>
+        </div>
+
+        <!-- FSEGA: Management Curs (Suprapunere) -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>08:30 - 10:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> MANAGEMENT</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Lungescu D.</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu Sport FSE</div>
+        </div>
+
+        <!-- FSE: Principii de economie Curs (Suprapunere) -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>10:00 - 12:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> Principii de Economie</div>
+          <div class="event-detail">📍 Sala Lovinescu</div>
+          <div class="event-detail">👤 Conf. Monica Burcă-Voicu</div>
+          <div class="event-detail">💻 Teams: zcaedlt</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSEGA (10:15)</div>
+        </div>
+
+        <!-- FSEGA: Microeconomics Curs (Suprapunere) -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>10:15 - 11:45</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> MICROECONOMICS</div>
+          <div class="event-detail">📍 Sala 121</div>
+          <div class="event-detail">👤 Jula O.</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSE (10:00)</div>
+        </div>
+
+        <!-- FSEGA: Limba Germană -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>12:00 - 13:30</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS/SEM</span> Limba Germană</div>
+          <div class="event-detail">📍 Sala 218</div>
+          <div class="event-detail">👤 Parasca M.</div>
+        </div>
+
+        <!-- FSE: Principii de economie Seminar -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>16:00 - 18:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Principii de Economie</div>
+          <div class="event-detail">📍 Sala Info 2</div>
+          <div class="event-detail">👤 Ion Fintină</div>
+          <div class="event-detail">💻 Teams: zcaedlt</div>
+        </div>
+
+        <!-- FSE: Intro Relatii Internationale Seminar -->
+        <div class="event-card fse" data-week="s1" data-faculty="fse">
+          <div class="event-time">
+            <span>18:00 - 20:00</span>
+            <span class="badge badge-s1">Impară (S1)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Introducere în Rel. Internaționale</div>
+          <div class="event-detail">📍 Sala Lovinescu</div>
+          <div class="event-detail">👤 Drd. Ana Bădescu</div>
+          <div class="event-detail">🔗 Link Zoom disponibil</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JOI -->
+    <div class="day-column">
+      <div class="day-header">JOI</div>
+      <div class="events-container">
+        
+        <!-- FSEGA: Maths Seminar -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>08:30 - 10:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Maths Applied to Econ.</div>
+          <div class="event-detail">📍 Sala 218</div>
+          <div class="event-detail">👤 Chiru I.</div>
+        </div>
+
+        <!-- FSE: Istoria Integrării Europene Seminar (Suprapunere) -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>10:00 - 12:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Istoria Integrării Europene</div>
+          <div class="event-detail">📍 Sala Mărgineanu</div>
+          <div class="event-detail">👤 Drd. Ionuț Joldescu</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSEGA (10:15)</div>
+        </div>
+
+        <!-- FSEGA: Management Seminar (Suprapunere) -->
+        <div class="event-card fsega" data-week="all" data-faculty="fsega">
+          <div class="event-time">
+            <span>10:15 - 11:45</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Management</div>
+          <div class="event-detail">📍 Sala 218</div>
+          <div class="event-detail">👤 Nedelcuț A.</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSE (10:00)</div>
+        </div>
+
+        <!-- FSE: Protocol si Eticheta Curs (Suprapunere) -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>12:00 - 14:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">CURS</span> Protocol și Etichetă în Dipl.</div>
+          <div class="event-detail">📍 Sala S1</div>
+          <div class="event-detail">👤 Lect. Gherasim Gabriel</div>
+          <div class="event-detail">💻 Teams: f5mztk3</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu Sport FSEGA (SI)</div>
+        </div>
+
+        <!-- FSEGA: Educatie Fizica / Fitness (Suprapunere) -->
+        <div class="event-card fsega" data-week="s1" data-faculty="fsega">
+          <div class="event-time">
+            <span>12:00 - 13:30</span>
+            <span class="badge badge-s1">Impară (SI)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SPORT</span> Educație Fizică / Fitness</div>
+          <div class="event-detail">📍 Sala Fitness FSEGA</div>
+          <div class="event-detail">👤 Pop S.</div>
+          <div class="overlap-tag">⚠️ Suprapunere cu FSE (12:00)</div>
+        </div>
+
+        <!-- FSE: Protocol si Eticheta Seminar -->
+        <div class="event-card fse" data-week="all" data-faculty="fse">
+          <div class="event-time">
+            <span>14:00 - 16:00</span>
+            <span class="badge badge-all">Săptămânal</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Protocol și Etichetă în Dipl.</div>
+          <div class="event-detail">📍 Sala S1</div>
+          <div class="event-detail">👤 Lect. Gherasim Gabriel</div>
+          <div class="event-detail">💻 Teams: f5mztk3</div>
+        </div>
+
+        <!-- FSEGA: Service Design Seminar -->
+        <div class="event-card fsega" data-week="s1" data-faculty="fsega">
+          <div class="event-time">
+            <span>15:30 - 17:00</span>
+            <span class="badge badge-s1">Impară (SI)</span>
+          </div>
+          <div class="event-title"><span class="tag-type">SEMINAR</span> Service Design & Dev.</div>
+          <div class="event-detail">📍 Sala 217</div>
+          <div class="event-detail">👤 Souca M.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VINERI -->
+    <div class="day-column">
+      <div class="day-header">VINERI</div>
+      <div class="events-container">
+        <div class="empty-day">Fără activități programate</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function filterEvents(type) {
+      // Manage active button state
+      const buttons = document.querySelectorAll('.btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const cards = document.querySelectorAll('.event-card');
+      
+      cards.forEach(card => {
+        const week = card.getAttribute('data-week');
+        const faculty = card.getAttribute('data-faculty');
+
+        if (type === 'all') {
+          card.style.display = 'block';
+        } else if (type === 's1') {
+          // Show weekly + S1
+          if (week === 'all' || week === 's1') {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        } else if (type === 's2') {
+          // Show weekly + S2
+          if (week === 'all' || week === 's2') {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        } else if (type === 'fsega') {
+          if (faculty === 'fsega') {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        } else if (type === 'fse') {
+          if (faculty === 'fse') {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
